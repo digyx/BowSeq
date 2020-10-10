@@ -3,23 +3,11 @@ use std::vec::Vec;
 fn main() {
     let alpha = -1.0;
     let beta = 2.61803398874989484820458683436563811772030917980;
-    let length = 100000000;
+    let length = 10000000;
 
     let s = seq_generator(length, alpha, beta);
 
-    let mut max = 0.0;
-    let mut min = 0.0;
-
-    for num in s {
-        if num > max {
-            max = num;
-        } else if num < min {
-            min = num;
-        }
-    }
-
-    println!("Max: {}", max);
-    println!("Min: {}", min);
+    min_max(s);
 }
 
 fn seq_generator(length: i32, alpha: f32, beta: f32) -> Vec<f32> {
@@ -39,4 +27,20 @@ fn seq_generator(length: i32, alpha: f32, beta: f32) -> Vec<f32> {
     };
 
     s
+}
+
+fn min_max(s: Vec<f32>) {
+    let mut max = 0.0;
+    let mut min = 0.0;
+
+    for num in s {
+        if num > max {
+            max = num;
+        } else if num < min {
+            min = num;
+        }
+    }
+
+    println!("Max: {}", max);
+    println!("Min: {}", min);
 }
