@@ -3,15 +3,30 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::process::Command;
 
+/*
+RAM USAGE:
+    26 Rows : 1 GB
+    27 Rows : 2 GB
+    28 Rows : 4 GB
+    29 Rows : 8 GB
+    30 Rows : 16 GB
+    31 Rows : 32 GB
+    32 Rows : 64 GB
+*/
+
 fn main() {
     let alpha = 0;
     let beta = 1;
-    let row_count = 10;
+    let row_count = 29;
+    let generate_rows = false;
 
     let s = seq_generator(row_count, alpha, beta);
 
     min_max(s.clone());
-    row_generator(s.clone());
+
+    if generate_rows {
+        row_generator(s.clone());
+    }
 }
 
 fn seq_generator(row_count: u32, alpha: i32, beta: i32) -> Vec<i32> {
