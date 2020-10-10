@@ -4,14 +4,12 @@ use std::io::prelude::*;
 use std::process::Command;
 
 /*
-RAM USAGE:
-    26 Rows : 1 GB
-    27 Rows : 2 GB
-    28 Rows : 4 GB
-    29 Rows : 8 GB
-    30 Rows : 16 GB
-    31 Rows : 32 GB
-    32 Rows : 64 GB
+Memory USAGE:
+    26 Rows : 2 GB
+    27 Rows : 4 GB
+    28 Rows : 8 GB
+    29 Rows : 16 GB
+    30 Rows : 32 GB
 */
 
 fn main() {
@@ -31,7 +29,7 @@ fn main() {
 
 fn seq_generator(row_count: u32, alpha: i32, beta: i32) -> Vec<i32> {
     let mut s: Vec<i32> = vec![];
-    let base: i32 = 2;
+    let base: i64 = 2;
     let length = base.pow(row_count + 1) - 1;
 
     s.push(alpha);
