@@ -17,7 +17,7 @@ RAM USAGE:
 fn main() {
     let alpha = 0;
     let beta = 1;
-    let row_count = 29;
+    let row_count = 10;
     let generate_rows = false;
 
     let s = seq_generator(row_count, alpha, beta);
