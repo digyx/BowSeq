@@ -13,22 +13,22 @@ Memory USAGE:
 */
 
 fn main() {
-    let alpha = 0;
-    let beta = 1;
-    let row_count = 10;
-    let generate_rows = false;
+    let alpha = -1.0;
+    let beta = 2.6180339887498948482045868343656381177203091798057628621354486227;
+    let row_count = 20;
+    let generate_rows = false;  // Will fail if alpha and beta are not integers
 
     let s = seq_generator(row_count, alpha, beta);
 
     min_max(s.clone());
 
-    if generate_rows {
+    if generate_rows && row_count < 10 {
         row_generator(s.clone());
     }
 }
 
-fn seq_generator(row_count: u32, alpha: i32, beta: i32) -> Vec<i32> {
-    let mut s: Vec<i32> = vec![];
+fn seq_generator(row_count: u32, alpha: f32, beta: f32) -> Vec<f32> {
+    let mut s: Vec<f32> = vec![];
     let base: i64 = 2;
     let length = base.pow(row_count + 1) - 1;
 
@@ -48,9 +48,9 @@ fn seq_generator(row_count: u32, alpha: i32, beta: i32) -> Vec<i32> {
     s
 }
 
-fn min_max(s: Vec<i32>) {
-    let mut max = 0;
-    let mut min = 0;
+fn min_max(s: Vec<f32>) {
+    let mut max = 0.0;
+    let mut min = 0.0;
 
     for num in s {
         if num > max {
@@ -64,7 +64,7 @@ fn min_max(s: Vec<i32>) {
     println!("Min: {}", min);
 }
 
-fn row_generator(mut s: Vec<i32>) {
+fn row_generator(mut s: Vec<f32>) {
     let mut file = File::create("target/sequence.txt").unwrap();
     let mut contents = format!("{}", s.remove(0));
     
