@@ -4,25 +4,25 @@ use std::io::prelude::*;
 use std::process::Command;
 
 /*
-Memory USAGE:
+  Memory USAGE:
     26 Rows : 2 GB
     27 Rows : 4 GB
     28 Rows : 8 GB
     29 Rows : 16 GB
-    30 Rows : 32 GB
+    30 Rows : 32 GB 
 */
 
 fn main() {
-    let alpha = -1.0;
-    let beta = 2.6180339887498948482045868343656381177203091798057628621354486227;
-    let row_count = 20;
-    let generate_rows = false;  // Will fail if alpha and beta are not integers
+    let alpha = 0.0;
+    let beta = 1.0;
+    let row_count = 5;
+    let format_as_rows = true;  // Will fail if alpha and beta are not integers
 
     let s = seq_generator(row_count, alpha, beta);
 
     min_max(s.clone());
 
-    if generate_rows && row_count < 10 {
+    if format_as_rows && row_count <= 17 {  // Anything above 17 rows will take a substantial amount
         row_generator(s.clone());
     }
 }
@@ -68,10 +68,12 @@ fn row_generator(mut s: Vec<f32>) {
     let mut file = File::create("target/sequence.txt").unwrap();
     let mut contents = format!("{}", s.remove(0));
     
+    println!("Formatting data...");
     for num in s {
         contents = format!("{} {}", contents, num);
     }
 
+    println!("Transferring data to Python...");
     file.write_all(contents.as_bytes()).unwrap();
 
     Command::new("python3").arg("src/rows.py").status().unwrap();

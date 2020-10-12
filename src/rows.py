@@ -51,4 +51,4 @@ if __name__ == "__main__":
 
     print("Generating rows...")
     row_generator(s)
-    print("Done generating.")
+    print("Generating complete.")
