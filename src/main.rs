@@ -15,8 +15,15 @@ use std::process::Command;
 fn main() {
     let alpha = 0.0;
     let beta = 1.0;
-    let row_count = 5;
+    let row_count = 10;
     let format_as_rows = true;  // Will fail if alpha and beta are not integers
+    let generate_as_alpha_beta = false;
+
+    if generate_as_alpha_beta {
+        let s = alpha_beta_sequence_generator(row_count);
+        second_row_generator(s);
+        return
+    }
 
     let s = seq_generator(row_count, alpha, beta);
 
@@ -38,6 +45,32 @@ fn seq_generator(row_count: u32, alpha: f32, beta: f32) -> Vec<f32> {
     for num in 1..(length-1) {
         if num % 2 == 0 {
             let add = s[(num / 2) as usize] + s[(num / 2 + 1) as usize];
+            s.push(add);
+        } else {
+            let add = s[((num - 1) / 2) as usize];
+            s.push(add);
+        }
+    };
+
+    s
+}
+
+fn alpha_beta_sequence_generator(row_count: u32) -> Vec<[i32; 2]>{
+    let mut s: Vec<[i32; 2]> = Vec::new();
+    let base: i64 = 2;
+    let length = base.pow(row_count + 1) - 1;
+    
+    s.push([1, 0]);
+    s.push([0, 1]);
+
+    for num in 1..(length-1) {
+        if num % 2 == 0 {
+            let mut add = [0, 0];
+            for i in 0..2 {
+                let component = s[(num / 2) as usize][i] + s[(num / 2 + 1) as usize][i];
+                add[i] = component;
+            }
+
             s.push(add);
         } else {
             let add = s[((num - 1) / 2) as usize];
@@ -76,5 +109,25 @@ fn row_generator(mut s: Vec<f32>) {
     println!("Transferring data to Python...");
     file.write_all(contents.as_bytes()).unwrap();
 
-    Command::new("python3").arg("src/rows.py").status().unwrap();
+    Command::new("python3")
+        .args(&["src/rows.py", "target/sequence.txt", "target/rows.txt"])
+        .status().unwrap();
+}
+
+fn second_row_generator(mut s: Vec<[i32; 2]>) {
+    let mut file = File::create("target/sequence.txt").unwrap();
+    let init_term = s.remove(0);
+    let mut contents = format!("{}a+{}b", init_term[0], init_term[1]);
+    
+    println!("Formatting data...");
+    for num in s {
+        contents = contents + format!(" {}a+{}b", num[0], num[1]).as_str();
+    }
+
+    println!("Transferring data to Python...");
+    file.write_all(contents.as_bytes()).unwrap();
+
+    Command::new("python3")
+        .args(&["src/rows.py", "target/sequence.txt", "target/rows.txt"])
+        .status().unwrap();
 }
