@@ -22,7 +22,7 @@ fn main() {
 
     min_max(s.clone());
 
-    if format_as_rows && row_count <= 17 {  // Anything above 17 rows will take a substantial amount
+    if format_as_rows {
         row_generator(s.clone());
     }
 }
@@ -70,7 +70,7 @@ fn row_generator(mut s: Vec<f32>) {
     
     println!("Formatting data...");
     for num in s {
-        contents = format!("{} {}", contents, num);
+        contents = contents + format!(" {}", num).as_str();
     }
 
     println!("Transferring data to Python...");
