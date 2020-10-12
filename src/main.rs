@@ -14,9 +14,9 @@ use std::process::Command;
 
 fn main() {
     let alpha = 0.0;
-    let beta = 1.0;
+    let beta = 1.5;
     let row_count = 10;
-    let format_as_rows = true;  // Will fail if alpha and beta are not integers
+    let format_as_rows = true;
     let generate_as_alpha_beta = false;
 
     if generate_as_alpha_beta {
