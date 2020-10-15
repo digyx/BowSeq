@@ -20,17 +20,33 @@ fn main() {
     let alpha = 0.0;
     let beta = 1.0;
     let row_count = 10;
-
+    
+    let seq_type = "float";
     let format_as_rows = true;
-    let generate_as_alpha_beta = false;
 
-    if generate_as_alpha_beta {
-        let s = alpha_beta_sequence_generator(row_count);
+    let base = match seq_type {
+        "float" => {
+            let mut base: Vec<f32> = Vec::new();
+            base.push(alpha);
+            base.push(beta);
+            Sequence::Float(base)
+        },
+        "alphabeta" => {
+            let mut base: Vec<AlphaBeta> = Vec::new();
+            base.push(AlphaBeta{alpha: 1, beta: 0});
+            base.push(AlphaBeta{alpha: 0, beta: 1});
+            Sequence::AlphaBeta(base)
+        },
+        &_ => panic!("error:  incorrect seq_type")
+    };
+
+    if seq_type == "alphabeta" {
+        let s = sequence_generator(row_count, base);
         row_generator(s);
         return
     }
 
-    let s = seq_generator(row_count, alpha, beta);
+    let s = sequence_generator(row_count, base);
 
     min_max(s.clone().float());
 
@@ -39,46 +55,21 @@ fn main() {
     }
 }
 
-fn seq_generator(row_count: u32, alpha: f32, beta: f32) -> Sequence {
-    let mut s: Vec<f32> = vec![];
+fn sequence_generator(row_count: u32, mut s: Sequence) -> Sequence {
     let base: i64 = 2;
     let length = base.pow(row_count + 1) - 1;
 
-    s.push(alpha);
-    s.push(beta);
-
     for num in 1..(length-1) {
         if num % 2 == 0 {
-            let add = s[(num / 2) as usize] + s[(num / 2 + 1) as usize];
+            let add = s.index((num / 2) as usize) + s.index((num / 2 + 1) as usize);
             s.push(add);
         } else {
-            let add = s[((num - 1) / 2) as usize];
+            let add = s.index(((num - 1) / 2) as usize);
             s.push(add);
         }
     };
 
-    Sequence::Float(s)
-}
-
-fn alpha_beta_sequence_generator(row_count: u32) -> Sequence {
-    let mut s: Vec<AlphaBeta> = Vec::new();
-    let base: i64 = 2;
-    let length = base.pow(row_count + 1) - 1;
-    
-    s.push(AlphaBeta{alpha: 1, beta: 0});
-    s.push(AlphaBeta{alpha: 0, beta: 1});
-
-    for num in 1..(length-1) {
-        if num % 2 == 0 {
-            let add = s[(num / 2) as usize] + s[(num / 2 + 1) as usize];
-            s.push(add);
-        } else {
-            let add = s[((num - 1) / 2) as usize];
-            s.push(add);
-        }
-    };
-
-    Sequence::AlphaBeta(s)
+    s
 }
 
 fn min_max(s: Vec<f32>) {

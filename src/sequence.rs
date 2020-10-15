@@ -2,6 +2,29 @@ use std::ops::Add;
 use std::fmt;
 use std::iter::Iterator;
 
+// ==================== Term Enum ====================
+#[derive(Copy, Clone)]
+pub enum Term {
+    Float(f32),
+    AlphaBeta(AlphaBeta)
+}
+
+impl Term {
+    pub fn float(self) -> f32 {
+        match self {
+            Term::Float(x) => x,
+            Term::AlphaBeta(_) => panic!("error:  alphabeta where float expected")
+        }
+    }
+
+    pub fn alphabeta(self) -> AlphaBeta {
+        match self {
+            Term::Float(_) => panic!("error:  float where alphabeta expected"),
+            Term::AlphaBeta(x) => x
+        }
+    }
+}
+
 // ==================== Sequence Enum ====================
 #[derive(Clone)]
 pub enum Sequence {
@@ -25,10 +48,35 @@ impl Sequence {
         }
     }
 
+    pub fn index(&self, index: usize) -> Term {
+        match self {
+            Sequence::Float(x) => Term::Float(x[index]),
+            Sequence::AlphaBeta(x) => Term::AlphaBeta(x[index])
+        }
+    }
+
     pub fn remove(&mut self, index: usize) -> String {
         match self {
             Sequence::Float(s) => format!("{}", s.remove(index)),
             Sequence::AlphaBeta(s) => format!("{}", s.remove(index)),
+        }
+    }
+
+    pub fn push(&mut self, term: Term) {
+        match self {
+            Sequence::Float(x) => x.push(term.float()),
+            Sequence::AlphaBeta(x) => x.push(term.alphabeta())
+        }
+    }
+}
+
+impl Add for Term {
+    type Output = Term;
+
+    fn add(self, other: Term) -> Term {
+        match self {
+            Term::Float(x) => Term::Float(x + other.float()),
+            Term::AlphaBeta(x) => Term::AlphaBeta(x + other.alphabeta()),
         }
     }
 }
