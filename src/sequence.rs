@@ -36,15 +36,15 @@ impl Sequence {
     pub fn float(self) -> Vec<f32> {
         match self {
             Sequence::Float(x) => x,
-            Sequence::AlphaBeta(_) => panic!("error:  alphabeta where float expected")
+            _ => panic!("error:  float expected")
         }
     }
 
     #[allow(dead_code)]  // Could be used in the future, so exists now
     pub fn alphabeta(self) -> Vec<AlphaBeta> {
         match self {
-            Sequence::Float(_) => panic!("error:  float where alphabeta expected"),
-            Sequence::AlphaBeta(x) => x
+            Sequence::AlphaBeta(x) => x,
+            _ => panic!("error:  alphabeta expected")
         }
     }
 
