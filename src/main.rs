@@ -8,7 +8,7 @@ use sequence::Sequence;
 use sequence::AlphaBeta;
 
 /*
-  Memory USAGE:
+  Memory Usage:
     26 Rows : 2 GB
     27 Rows : 4 GB
     28 Rows : 8 GB
@@ -20,6 +20,7 @@ fn main() {
     let alpha = 0.0;
     let beta = 1.0;
     let row_count = 10;
+    let num_to_find = 7.0;
     
     let seq_type = "float";
     let format_as_rows = true;
@@ -37,7 +38,7 @@ fn main() {
             base.push(AlphaBeta{alpha: 0, beta: 1});
             Sequence::AlphaBeta(base)
         },
-        &_ => panic!("error:  incorrect seq_type")
+        _ => panic!("error:  incorrect seq_type")
     };
 
     if seq_type == "alphabeta" {
@@ -47,8 +48,10 @@ fn main() {
     }
 
     let s = sequence_generator(row_count, base);
+    let s_float = s.clone().float();
 
-    min_max(s.clone().float());
+    min_max(s_float.clone());
+    find_elem_index(s_float.clone(), num_to_find);
 
     if format_as_rows {
         row_generator(s);
@@ -86,6 +89,18 @@ fn min_max(s: Vec<f32>) {
 
     println!("Max: {}", max);
     println!("Min: {}", min);
+}
+
+fn find_elem_index(s: Vec<f32>, n: f32) {
+    let mut results = Vec::new();
+    for (index, elem) in s.iter().enumerate() {
+        if *elem == n {results.push(index);}
+    }
+
+    println!("Indexes where {} occurs:", n);
+    for i in results {
+        println!("\t{}", i);
+    }
 }
 
 fn row_generator(mut s: Sequence) {
