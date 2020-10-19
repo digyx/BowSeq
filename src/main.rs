@@ -132,6 +132,6 @@ fn row_generator(mut s: Sequence) {
     file.write_all(contents.as_bytes()).unwrap();
 
     Command::new("python3")
-        .args(&["src/rows.py", "sequence.txt", "rows.txt"])
+        .args(&["rows.py", "sequence.txt", "rows.txt"])
         .status().unwrap();
 }
