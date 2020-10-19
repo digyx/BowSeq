@@ -1,8 +1,9 @@
-use std::env;
 use std::vec::Vec;
 use std::fs::File;
 use std::io::prelude::*;
-use std::process::{Command, exit};
+use std::process::Command;
+
+mod params;
 
 mod sequence;
 use sequence::Sequence;
@@ -17,19 +18,9 @@ use sequence::AlphaBeta;
     30 Rows : 32 GB 
 */
 
-struct SequenceParams {
-    alpha: f32,
-    beta: f32,
-    row_count: u32,
-    sequence_type: String,
-    gen_rows: bool,
-    min_max: bool,
-    find_elem: f32,
-}
-
 
 fn main() {
-    let seq_params = get_sequence_params();
+    let seq_params = params::get_sequence_params();
 
     let alpha = seq_params.alpha;
     let beta = seq_params.beta;
@@ -73,55 +64,6 @@ fn main() {
     
     if seq_params.find_elem != 0.0 {
         find_elem_index(s_float.clone(), seq_params.find_elem);
-    }
-}
-
-fn get_sequence_params() -> SequenceParams{
-    let mut args: Vec<String> = env::args().collect();
-
-    if args.len() < 3 {
-        println!("error:  Must supply at least one alpha and beta value");
-        exit(1);
-    }
-    
-    let alpha: f32 = args.remove(1).parse().unwrap();
-    let beta: f32 = args.remove(1).parse().unwrap();
-
-    let mut row_count: u32 = 10;
-    let mut seq_type = String::from("float");
-    let mut gen_rows: bool = false;
-    let mut min_max: bool = false;
-    let mut find_elem: f32 = 0.0;
-
-    for i in 1..args.len() {
-        match args[i].as_str() {
-            "-count" => {
-                row_count = args[i+1].parse().unwrap();
-            },
-            "-type" => {
-                seq_type = args[i+1].clone();
-            },
-            "-rowFormat" => {
-                gen_rows = true;
-            },
-            "-minmax" => {
-                min_max = true;
-            },
-            "-find" => {
-                find_elem = args[i+1].parse().unwrap();
-            }
-            _ => {}
-        }
-    }
-    
-    SequenceParams{
-        alpha: alpha,
-        beta: beta,
-        row_count: row_count,
-        sequence_type: seq_type,
-        gen_rows: gen_rows,
-        min_max: min_max,
-        find_elem: find_elem,
     }
 }
 
