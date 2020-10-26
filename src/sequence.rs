@@ -116,7 +116,7 @@ impl Add for AlphaBeta {
 
     fn add(self, other: AlphaBeta) -> AlphaBeta {
         AlphaBeta{
-            alpha: self.alpha + other.beta,
+            alpha: self.alpha + other.alpha,
             beta: self.beta + other.beta
         }
     }
