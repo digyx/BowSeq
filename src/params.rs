@@ -8,6 +8,7 @@ pub struct SequenceParams {
     pub sequence_type: String,
     pub gen_rows: bool,
     pub min_max: bool,
+    pub mean: bool,
     pub find_elem: f32,
 }
 
@@ -26,6 +27,7 @@ pub fn get_sequence_params() -> SequenceParams{
     let mut seq_type = String::from("float");
     let mut gen_rows: bool = false;
     let mut min_max: bool = false;
+    let mut mean: bool = false;
     let mut find_elem: f32 = 0.0;
 
     for i in 1..args.len() {
@@ -44,7 +46,10 @@ pub fn get_sequence_params() -> SequenceParams{
             },
             "-find" => {
                 find_elem = args[i+1].parse().unwrap();
-            }
+            },
+            "-mean" => {
+                mean = true;
+            },
             _ => {}
         }
     }
@@ -56,6 +61,7 @@ pub fn get_sequence_params() -> SequenceParams{
         sequence_type: seq_type,
         gen_rows: gen_rows,
         min_max: min_max,
+        mean: mean,
         find_elem: find_elem,
     }
 }

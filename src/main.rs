@@ -62,6 +62,10 @@ fn main() {
         min_max(s_float.clone());
     }
     
+    if seq_params.mean {
+        mean(s_float.clone());
+    }
+
     if seq_params.find_elem != 0.0 {
         find_elem_index(s_float.clone(), seq_params.find_elem);
     }
@@ -99,6 +103,20 @@ fn min_max(s: Vec<f32>) {
     println!("Minimum and Maximum:");
     println!("\tMax: {}", max);
     println!("\tMin: {}", min);
+}
+
+fn mean(s: Vec<f32>) {
+    let mut sum: f32 = 0.0;
+    let count = s.len() as f32;
+
+    for num in s {
+        sum += num;
+    }
+
+    println!("Sum: {}", sum);
+    println!("Count: {}", count);
+    println!("Mean:");
+    println!("\t{}", sum/count);
 }
 
 fn find_elem_index(s: Vec<f32>, n: f32) {
