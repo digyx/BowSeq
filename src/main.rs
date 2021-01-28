@@ -6,6 +6,7 @@ use std::process::Command;
 mod params;
 
 mod sequence;
+use sequence::Term;
 use sequence::Sequence;
 use sequence::AlphaBeta;
 
@@ -30,7 +31,7 @@ fn main() {
 
     let base = match seq_type {
         "float" => {
-            let mut base: Vec<f32> = Vec::new();
+            let mut base: Vec<f64> = Vec::new();
             base.push(alpha);
             base.push(beta);
             Sequence::Float(base)
@@ -41,6 +42,12 @@ fn main() {
             base.push(AlphaBeta{alpha: 0, beta: 1});
             Sequence::AlphaBeta(base)
         },
+        "int" => {
+            let mut base: Vec<i32> = Vec::new();
+            base.push(alpha as i32);
+            base.push(beta as i32);
+            Sequence::Int(base)
+        }
         _ => panic!("error:  incorrect seq_type")
     };
 
@@ -50,24 +57,27 @@ fn main() {
         return
     }
 
+    println!("Generating sequence...");
     let s = sequence_generator(row_count, base);
-    let s_float = s.clone().float();
+    println!("Done generating.");
 
     // Optional functions
     if seq_params.gen_rows {
+        println!("Generating rows...");
         row_generator(s.clone());
+        println!("Done generating");
     }
     
     if seq_params.min_max {
-        min_max(s_float.clone());
+        min_max(s.clone());
     }
     
     if seq_params.mean {
-        mean(s_float.clone());
+        mean(s.clone());
     }
 
-    if seq_params.find_elem != 0.0 {
-        find_elem_index(s_float.clone(), seq_params.find_elem);
+    if seq_params.find_elem != Term::Int(0) {
+        find_elem_index(s.clone(), seq_params.find_elem);
     }
 }
 
@@ -88,9 +98,18 @@ fn sequence_generator(row_count: u32, mut s: Sequence) -> Sequence {
     s
 }
 
-fn min_max(s: Vec<f32>) {
-    let mut max = 0.0;
-    let mut min = 0.0;
+fn min_max(s: Sequence) {
+    let mut max = match s {
+        Sequence::Float(_) => Term::Float(0.0),
+        Sequence::Int(_) => Term::Int(0),
+        _ => panic!("error:  min_max can only be used with floats and ints"),
+    };
+
+    let mut min = match s {
+        Sequence::Float(_) => Term::Float(0.0),
+        Sequence::Int(_) => Term::Int(0),
+        _ => panic!("error:  min_max can only be used with floats and ints"),
+    };
 
     for num in s {
         if num > max {
@@ -100,33 +119,41 @@ fn min_max(s: Vec<f32>) {
         }
     }
 
-    println!("Minimum and Maximum:");
+    println!("\nMinimum and Maximum:");
     println!("\tMax: {}", max);
     println!("\tMin: {}", min);
 }
 
-fn mean(s: Vec<f32>) {
-    let mut sum: f32 = 0.0;
-    let count = s.len() as f32;
+fn mean(s: Sequence) {
+    let count = s.len() as f64;
 
-    for num in s {
-        sum += num;
-    }
+    // Looping through the Term enum is absurdly slow
+    let sum = match s {  
+        Sequence::Float(x) => {
+            let mut sum = 0.0;
+            for num in x {sum += num};
+            sum
+        },
+        Sequence::Int(x) => {
+            let mut sum = 0;
+            for num in x {sum += num};
+            sum as f64
+        },
+        _ => panic!("error: incompatible type for mean function")
+    };
 
-    println!("Sum: {}", sum);
-    println!("Count: {}", count);
-    println!("Mean:");
+    println!("\nMean:");
     println!("\t{}", sum/count);
 }
 
-fn find_elem_index(s: Vec<f32>, n: f32) {
+fn find_elem_index(s: Sequence, n: Term) {
     let mut results = Vec::new();
-    for (index, elem) in s.iter().enumerate() {
-        if *elem == n {results.push(index);}
+    for (index, elem) in s.enumerate() {
+        if elem == n {results.push(index);}
     }
 
     let mut i = 0;
-    println!("Indexes where {} occurs:", n);
+    println!("\nIndexes where {} occurs:", n);
     for result in results {
         if i == 5 {
             println!("");
