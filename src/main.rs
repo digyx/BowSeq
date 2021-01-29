@@ -135,8 +135,8 @@ fn mean(s: Sequence) {
             sum
         },
         Sequence::Int(x) => {
-            let mut sum = 0;
-            for num in x {sum += num};
+            let mut sum: i64 = 0;
+            for num in x {sum += num as i64};
             sum as f64
         },
         _ => panic!("error: incompatible type for mean function")
