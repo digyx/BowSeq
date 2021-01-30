@@ -19,9 +19,10 @@ Options:
     -type <string>  Representation of the numbers in the sequence (int, float, alphabeta)
     -rowFormat      Log the sequence with row formatting in rows.txt
 
-    -minmax         Find the maximum and minimum values in the sequence
-    -find <num>     Return the indexes where a specific value appears
-    -mean           Return the average value of the entire sequence
+    -find <num>     Returns the indexes where a specific value appears
+    -minmax         Returns the maximum and minimum values in the sequence
+    -sum            Returns the sum of the entire sequence
+    -mean           Returns the average value of the entire sequence
 ```
 
 ## RAM Usage

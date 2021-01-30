@@ -11,6 +11,7 @@ pub struct SequenceParams {
     pub sequence_type: String,
     pub gen_rows: bool,
     pub min_max: bool,
+    pub sum: bool,
     pub mean: bool,
     pub find_elem: Term,
 }
@@ -29,9 +30,10 @@ Bow Sequence Generator 0.1.1
         -type <string>  Representation of the numbers in the sequence (int, float, alphabeta)
         -rowFormat      Log the sequence with row formatting in rows.txt
 
-        -minmax         Find the maximum and minimum values in the sequence
-        -find <num>     Return the indexes where a specific value appears
-        -mean           Return the average value of the entire sequence");
+        -find <num>     Returns the indexes where a specific value appears
+        -minmax         Returns the maximum and minimum values in the sequence
+        -sum            Returns the sum of the entire sequence
+        -mean           Returns the average value of the entire sequence");
         exit(1);
     }
 
@@ -52,9 +54,10 @@ Bow Sequence Generator 0.1.1
 
     let mut row_count: u32 = 10;
     let mut gen_rows: bool = false;
-    let mut min_max: bool = false;
-    let mut mean: bool = false;
     let mut find_elem: Term = Term::Int(0);
+    let mut min_max: bool = false;
+    let mut sum: bool = false;
+    let mut mean: bool = false;
 
     for i in 1..args.len() {
         match args[i].as_str() {
@@ -67,15 +70,18 @@ Bow Sequence Generator 0.1.1
             "-rowFormat" => {
                 gen_rows = true;
             },
-            "-minmax" => {
-                min_max = true;
-            },
             "-find" => {
                 find_elem = match seq_type.as_str() {
                     "int" => Term::Int(args[i+1].parse().unwrap()),
                     "float" => Term::Float(args[i+1].parse().unwrap()),
                     _ => panic!("error:  find_elem can only use int and float")
                 }
+            },
+            "-minmax" => {
+                min_max = true;
+            },
+            "-sum" => {
+                sum = true
             },
             "-mean" => {
                 mean = true;
@@ -90,8 +96,9 @@ Bow Sequence Generator 0.1.1
         row_count: row_count,
         sequence_type: seq_type,
         gen_rows: gen_rows,
-        min_max: min_max,
-        mean: mean,
         find_elem: find_elem,
+        min_max: min_max,
+        sum: sum,
+        mean: mean,
     }
 }

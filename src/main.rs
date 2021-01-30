@@ -68,16 +68,21 @@ fn main() {
         println!("Done generating");
     }
     
+    if seq_params.find_elem != Term::Int(0) {
+        find_elem_index(s.clone(), seq_params.find_elem);
+    }
+
     if seq_params.min_max {
         min_max(s.clone());
+    }
+
+    if seq_params.sum {
+        println!("\nSum:");
+        println!("\t{}", sum(s.clone()));
     }
     
     if seq_params.mean {
         mean(s.clone());
-    }
-
-    if seq_params.find_elem != Term::Int(0) {
-        find_elem_index(s.clone(), seq_params.find_elem);
     }
 }
 
@@ -124,11 +129,9 @@ fn min_max(s: Sequence) {
     println!("\tMin: {}", min);
 }
 
-fn mean(s: Sequence) {
-    let count = s.len() as f64;
-
+fn sum(s: Sequence) -> f64 {
     // Looping through the Term enum is absurdly slow
-    let sum = match s {  
+    match s {
         Sequence::Float(x) => {
             let mut sum = 0.0;
             for num in x {sum += num};
@@ -140,7 +143,13 @@ fn mean(s: Sequence) {
             sum as f64
         },
         _ => panic!("error: incompatible type for mean function")
-    };
+    }
+}
+
+fn mean(s: Sequence) {
+    let count = s.len() as f64;
+
+    let sum = sum(s);
 
     println!("\nMean:");
     println!("\t{}", sum/count);
