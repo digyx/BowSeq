@@ -42,14 +42,37 @@ fn main() {
             base.push(AlphaBeta{alpha: 0, beta: 1});
             Sequence::AlphaBeta(base)
         },
-        "int" => {
-            let mut base: Vec<i32> = Vec::new();
-            base.push(alpha as i32);
-            base.push(beta as i32);
-            Sequence::Int(base)
-        }
         _ => panic!("error:  incorrect seq_type")
     };
+
+    if seq_params.standalone {
+        let base: i64 = 2;
+        let size = base.pow(row_count + 1) - 1;
+    
+        let s = sequence::new(alpha, beta, size as u32);
+
+        if seq_params.sum {
+            println!("\nSum:");
+            println!("\t{}", s.clone().sum());
+        }
+        
+        if seq_params.mean {
+            println!("\nMean:");
+            println!("\t{}", s.clone().mean());
+        }
+
+        if seq_params.min_max {
+            s.sum();
+
+            println!("\nMinumum:");            
+            println!("\t{}", s.min());
+                        
+            println!("\nMaximum:");            
+            println!("\t{}", s.max());            
+        }
+
+        return
+    }
 
     if seq_type == "alphabeta" {
         let s = sequence_generator(row_count, base);
@@ -67,8 +90,8 @@ fn main() {
         row_generator(s.clone());
         println!("Done generating");
     }
-    
-    if seq_params.find_elem != Term::Int(0) {
+
+    if seq_params.find_elem != 0.0 {
         find_elem_index(s.clone(), seq_params.find_elem);
     }
 
@@ -105,16 +128,6 @@ fn sequence_generator(row_count: u32, mut s: Sequence) -> Sequence {
 
 fn min_max(s: Sequence) {
     let (min, max) = match s {
-        Sequence::Int(x) => {
-            let mut min = x[0];
-            let mut max = x[0];
-            
-            for num in x{
-                if num > max {max = num}
-                if num < min {min = num}
-            }
-            (Term::Int(min), Term::Int(max))
-        },
         Sequence::Float(x) => {
             let mut min = x[0];
             let mut max = x[0];
@@ -140,11 +153,6 @@ fn sum(s: Sequence) -> f64 {
             for num in x {sum += num};
             sum
         },
-        Sequence::Int(x) => {
-            let mut sum: i64 = 0;
-            for num in x {sum += num as i64};
-            sum as f64
-        },
         _ => panic!("error: incompatible type for mean function")
     }
 }
@@ -158,10 +166,10 @@ fn mean(s: Sequence) {
     println!("\t{}", sum/count);
 }
 
-fn find_elem_index(s: Sequence, n: Term) {
+fn find_elem_index(s: Sequence, n: f64) {
     let mut results = Vec::new();
     for (index, elem) in s.enumerate() {
-        if elem == n {results.push(index);}
+        if elem.float() == n {results.push(index);}
     }
 
     let mut i = 0;

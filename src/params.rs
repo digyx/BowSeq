@@ -1,19 +1,17 @@
 use std::env;
 use std::process::exit;
 
-use crate::sequence;
-use sequence::Term;
-
 pub struct SequenceParams {
     pub alpha: f64,
     pub beta: f64,
     pub row_count: u32,
     pub sequence_type: String,
+    pub standalone: bool,
     pub gen_rows: bool,
     pub min_max: bool,
     pub sum: bool,
     pub mean: bool,
-    pub find_elem: Term,
+    pub find_elem: f64,
 }
 
 pub fn get_sequence_params() -> SequenceParams{
@@ -38,14 +36,11 @@ Bow Sequence Generator {}
         exit(1);
     }
 
-    let mut seq_type: String = match args[1].contains(".") {
-        true => String::from("float"),
-        false => String::from("int")
-    };
+    let mut sequence_type: String = String::from("float");
     
     let alpha: f64 =  match args.remove(1).parse() {
         Ok(num) => num,
-        Err(_) => panic!("error: cannot parge alpha term")
+        Err(_) => panic!("error: cannot parse alpha term")
     };
 
     let beta: f64 = match args.remove(1).parse() {
@@ -54,8 +49,9 @@ Bow Sequence Generator {}
     };
 
     let mut row_count: u32 = 10;
+    let mut standalone: bool = false;
     let mut gen_rows: bool = false;
-    let mut find_elem: Term = Term::Int(0);
+    let mut find_elem: f64 = 0.0;
     let mut min_max: bool = false;
     let mut sum: bool = false;
     let mut mean: bool = false;
@@ -66,15 +62,17 @@ Bow Sequence Generator {}
                 row_count = args[i+1].parse().unwrap();
             },
             "-type" => {
-                seq_type = args[i+1].clone();
+                sequence_type = args[i+1].clone();
+            },
+            "-standalone" => {
+                standalone = true;
             },
             "-rowFormat" => {
                 gen_rows = true;
             },
             "-find" => {
-                find_elem = match seq_type.as_str() {
-                    "int" => Term::Int(args[i+1].parse().unwrap()),
-                    "float" => Term::Float(args[i+1].parse().unwrap()),
+                find_elem = match sequence_type.as_str() {
+                    "float" => args[i+1].parse().unwrap(),
                     _ => panic!("error:  find_elem can only use int and float")
                 }
             },
@@ -92,14 +90,15 @@ Bow Sequence Generator {}
     }
     
     SequenceParams{
-        alpha: alpha,
-        beta: beta,
-        row_count: row_count,
-        sequence_type: seq_type,
-        gen_rows: gen_rows,
-        find_elem: find_elem,
-        min_max: min_max,
-        sum: sum,
-        mean: mean,
+        alpha,
+        beta,
+        row_count,
+        sequence_type,
+        standalone,
+        gen_rows,
+        find_elem,
+        min_max,
+        sum,
+        mean,
     }
 }
