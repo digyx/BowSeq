@@ -10,7 +10,7 @@
 
 ## Bash Style Documentation and Arguments
 ```
-Bow Sequence Generator 0.1.1
+Bow Sequence Generator 0.1.2
 
 Usage:  bowseq <alpha_term> <beta_term> [options]
 

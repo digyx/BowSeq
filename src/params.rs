@@ -21,7 +21,7 @@ pub fn get_sequence_params() -> SequenceParams{
 
     if args.len() < 3 {
         println!("\
-Bow Sequence Generator 0.1.1
+Bow Sequence Generator {}
 
     Usage:  bowseq <alpha_term> <beta_term> [options]
             
@@ -33,7 +33,8 @@ Bow Sequence Generator 0.1.1
         -find <num>     Returns the indexes where a specific value appears
         -minmax         Returns the maximum and minimum values in the sequence
         -sum            Returns the sum of the entire sequence
-        -mean           Returns the average value of the entire sequence");
+        -mean           Returns the average value of the entire sequence",
+    env!("CARGO_PKG_VERSION"));
         exit(1);
     }
 
