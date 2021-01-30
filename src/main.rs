@@ -104,29 +104,32 @@ fn sequence_generator(row_count: u32, mut s: Sequence) -> Sequence {
 }
 
 fn min_max(s: Sequence) {
-    let mut max = match s {
-        Sequence::Float(_) => Term::Float(0.0),
-        Sequence::Int(_) => Term::Int(0),
-        _ => panic!("error:  min_max can only be used with floats and ints"),
+    let (min, max) = match s {
+        Sequence::Int(x) => {
+            let mut min = x[0];
+            let mut max = x[0];
+            
+            for num in x{
+                if num > max {max = num}
+                if num < min {min = num}
+            }
+            (Term::Int(min), Term::Int(max))
+        },
+        Sequence::Float(x) => {
+            let mut min = x[0];
+            let mut max = x[0];
+
+            for num in x{
+                if num > max {max = num}
+                if num < min {min = num}
+            }
+            (Term::Float(min), Term::Float(max))
+        },
+        _ => panic!("error: cannot find minmax of this type")
     };
 
-    let mut min = match s {
-        Sequence::Float(_) => Term::Float(0.0),
-        Sequence::Int(_) => Term::Int(0),
-        _ => panic!("error:  min_max can only be used with floats and ints"),
-    };
-
-    for num in s {
-        if num > max {
-            max = num;
-        } else if num < min {
-            min = num;
-        }
-    }
-
-    println!("\nMinimum and Maximum:");
-    println!("\tMax: {}", max);
-    println!("\tMin: {}", min);
+    println!("\nMaximum:\n\t{}", max);
+    println!("\nMinimum:\n\t{}", min);
 }
 
 fn sum(s: Sequence) -> f64 {
