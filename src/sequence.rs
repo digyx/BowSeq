@@ -1,105 +1,9 @@
 use std::ops::Add;
 use std::fmt;
-use std::iter::Iterator;
-// ==================== Term Enum ====================
-#[derive(Copy, Clone, PartialOrd, PartialEq)]
-pub enum Term {
-    Float(f64),
-    AlphaBeta(AlphaBeta)
-}
 
-impl Term {
-    pub fn float(self) -> f64 {
-        match self {
-            Term::Float(x) => x,
-            Term::AlphaBeta(_) => panic!("error:  alphabeta cannot be cast as float")
-        }
-    }
+pub type Sequence = Vec<AlphaBeta>;
 
-    pub fn alphabeta(self) -> AlphaBeta {
-        match self {
-            Term::Float(_) => panic!("error:  float cannot be cast as alphabeta"),
-            Term::AlphaBeta(x) => x
-        }
-    }
-}
-
-impl Add for Term {
-    type Output = Term;
-
-    fn add(self, other: Term) -> Term {
-        match self {
-            Term::Float(x) => Term::Float(x + other.float()),
-            Term::AlphaBeta(x) => Term::AlphaBeta(x + other.alphabeta()),
-        }
-    }
-}
-
-impl fmt::Display for Term {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Term::Float(x) => write!(f, "{}", x),
-            Term::AlphaBeta(x) => write!(f, "{}", x),
-        }
-    }
-}
-
-// ==================== Sequence Enum ====================
-#[derive(Clone)]
-pub enum Sequence {
-    Float(Vec<f64>),
-    AlphaBeta(Vec<AlphaBeta>)
-}
-
-impl Sequence {
-    pub fn index(&self, index: usize) -> Term {
-        match self {
-            Sequence::Float(x) => Term::Float(x[index]),
-            Sequence::AlphaBeta(x) => Term::AlphaBeta(x[index])
-        }
-    }
-
-    pub fn remove(&mut self, index: usize) -> String {
-        match self {
-            Sequence::Float(s) => format!("{}", s.remove(index)),
-            Sequence::AlphaBeta(s) => format!("{}", s.remove(index)),
-        }
-    }
-
-    pub fn push(&mut self, term: Term) {
-        match self {
-            Sequence::Float(x) => x.push(term.float()),
-            Sequence::AlphaBeta(x) => x.push(term.alphabeta())
-        }
-    }
-
-    pub fn len(&self) -> usize{
-        match self {
-            Sequence::Float(x) => x.len(),
-            Sequence::AlphaBeta(x) => x.len()
-        }
-    }
-}
-
-impl Iterator for Sequence {
-    type Item = Term;
-
-    fn next(&mut self) -> Option<Term> {
-        match self {
-            Sequence::Float(x) => {
-                if x.len() == 0 {return None}
-                Some(Term::Float(x.remove(0)))
-            }
-
-            Sequence::AlphaBeta(x) => {
-                if x.len() == 0 {return None}
-                Some(Term::AlphaBeta(x.remove(0)))
-            }
-        }
-    }
-}
-
-// ==================== Sequence Enum ====================
+// ==================== Standalone Sequence ====================
 #[derive(Clone)]
 pub struct StandaloneSequence {
     term: AlphaBeta,
@@ -111,7 +15,7 @@ pub struct StandaloneSequence {
     min: f64
 }
 
-pub fn new(alpha: f64, beta: f64, size: u32) -> StandaloneSequence {
+pub fn new_standalone(alpha: f64, beta: f64, size: u32) -> StandaloneSequence {
     StandaloneSequence {
         term: AlphaBeta {
             alpha: 0,
@@ -175,7 +79,7 @@ impl StandaloneSequence {
         sum
     }
 
-    pub fn mean(&mut self) -> f64 {
+    pub fn mean(&self) -> f64 {
         self.sum() / self.limit as f64
     }
 
@@ -189,10 +93,16 @@ impl StandaloneSequence {
 }
 
 // ==================== AlphaBeta Struct ====================
-#[derive(Copy, Clone, PartialOrd, PartialEq)]
+#[derive(Copy, Clone)]
 pub struct AlphaBeta {
-    pub alpha: i32,
-    pub beta: i32,
+    pub alpha: u32,
+    pub beta: u32,
+}
+
+impl AlphaBeta {
+    pub fn float(&self, alpha: f64, beta: f64) -> f64 {
+        (self.alpha as f64 * alpha) + (self.beta as f64 * beta)
+    }
 }
 
 impl fmt::Display for AlphaBeta {

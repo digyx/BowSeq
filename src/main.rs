@@ -6,17 +6,15 @@ use std::process::Command;
 mod params;
 
 mod sequence;
-use sequence::Term;
 use sequence::Sequence;
 use sequence::AlphaBeta;
 
 /*
   Memory Usage:
-    26 Rows : 2 GB
-    27 Rows : 4 GB
-    28 Rows : 8 GB
-    29 Rows : 16 GB
-    30 Rows : 32 GB 
+    27 Rows : 1 GB
+    28 Rows : 4 GB
+    29 Rows : 8 GB
+    30 Rows : 16 GB 
 */
 
 
@@ -29,46 +27,34 @@ fn main() {
     
     let seq_type = seq_params.sequence_type.as_str();
 
-    let base = match seq_type {
-        "float" => {
-            let mut base: Vec<f64> = Vec::new();
-            base.push(alpha);
-            base.push(beta);
-            Sequence::Float(base)
-        },
-        "alphabeta" => {
-            let mut base: Vec<AlphaBeta> = Vec::new();
-            base.push(AlphaBeta{alpha: 1, beta: 0});
-            base.push(AlphaBeta{alpha: 0, beta: 1});
-            Sequence::AlphaBeta(base)
-        },
-        _ => panic!("error:  incorrect seq_type")
-    };
+    let mut base: Sequence = Vec::new();
+    base.push(AlphaBeta{alpha: 1, beta: 0});
+    base.push(AlphaBeta{alpha: 0, beta: 1});
 
     if seq_params.standalone {
         let base: i64 = 2;
-        let size = base.pow(row_count + 1) - 1;
+        let size = (base.pow(row_count + 1) - 1 )as u32;
     
-        let s = sequence::new(alpha, beta, size as u32);
+        let seq = Box::new(sequence::new_standalone(alpha, beta, size));
 
         if seq_params.sum {
             println!("\nSum:");
-            println!("\t{}", s.clone().sum());
+            println!("\t{}", seq.sum());
         }
         
         if seq_params.mean {
             println!("\nMean:");
-            println!("\t{}", s.clone().mean());
+            println!("\t{}", seq.mean());
         }
 
         if seq_params.min_max {
-            s.sum();
+            seq.sum();
 
             println!("\nMinumum:");            
-            println!("\t{}", s.min());
+            println!("\t{}", seq.min());
                         
             println!("\nMaximum:");            
-            println!("\t{}", s.max());            
+            println!("\t{}", seq.max());            
         }
 
         return
@@ -82,43 +68,44 @@ fn main() {
 
     println!("Generating sequence...");
     let s = sequence_generator(row_count, base);
+    let seq = Box::new(s);
     println!("Done generating.");
 
     // Optional functions
-    if seq_params.gen_rows {
-        println!("Generating rows...");
-        row_generator(s.clone());
-        println!("Done generating");
-    }
-
     if seq_params.find_elem != 0.0 {
-        find_elem_index(s.clone(), seq_params.find_elem);
+        find_elem_index(&seq, seq_params.find_elem, alpha, beta);
     }
 
     if seq_params.min_max {
-        min_max(s.clone());
+        min_max(&seq, alpha, beta);
     }
 
     if seq_params.sum {
         println!("\nSum:");
-        println!("\t{}", sum(s.clone()));
+        println!("\t{}", sum(&seq, alpha, beta));
     }
     
     if seq_params.mean {
-        mean(s.clone());
+        mean(&seq, alpha, beta);
+    }
+
+    if seq_params.gen_rows {
+        println!("Generating rows...");
+        row_generator(*seq);
+        println!("Done generating");
     }
 }
 
-fn sequence_generator(row_count: u32, mut s: Sequence) -> Sequence {
+fn sequence_generator(row_count: u32, mut s: Vec<AlphaBeta>) -> Vec<AlphaBeta> {
     let base: i64 = 2;
     let length = base.pow(row_count + 1) - 1;
 
     for num in 1..(length-1) {
         if num % 2 == 0 {
-            let add = s.index((num / 2) as usize) + s.index((num / 2 + 1) as usize);
+            let add = s[(num / 2) as usize] + s[(num / 2 + 1) as usize];
             s.push(add);
         } else {
-            let add = s.index(((num - 1) / 2) as usize);
+            let add = s[((num - 1) / 2) as usize];
             s.push(add);
         }
     };
@@ -126,50 +113,49 @@ fn sequence_generator(row_count: u32, mut s: Sequence) -> Sequence {
     s
 }
 
-fn min_max(s: Sequence) {
-    let (min, max) = match s {
-        Sequence::Float(x) => {
-            let mut min = x[0];
-            let mut max = x[0];
+fn min_max(s: &Sequence, alpha: f64, beta: f64) {
+    let mut min = s[0];
+    let mut max = s[0];
 
-            for num in x{
-                if num > max {max = num}
-                if num < min {min = num}
-            }
-            (Term::Float(min), Term::Float(max))
-        },
-        _ => panic!("error: cannot find minmax of this type")
-    };
+    for num in s {
+        let cur_term = num.float(alpha, beta);
+
+        if cur_term > max.float(alpha, beta) {max = *num}
+        if cur_term < min.float(alpha, beta) {min = *num}
+    }
 
     println!("\nMaximum:\n\t{}", max);
     println!("\nMinimum:\n\t{}", min);
 }
 
-fn sum(s: Sequence) -> f64 {
-    // Looping through the Term enum is absurdly slow
-    match s {
-        Sequence::Float(x) => {
-            let mut sum = 0.0;
-            for num in x {sum += num};
-            sum
-        },
-        _ => panic!("error: incompatible type for mean function")
-    }
+fn sum(s: &Sequence, alpha: f64, beta: f64) -> f64 {
+    let mut alpha_sum: u64 = 0;
+    let mut beta_sum: u64 = 0;
+
+    for num in s {
+        alpha_sum += num.alpha as u64;
+        beta_sum += num.beta as u64;
+        // println!("{}", sum);
+    };
+    
+    (alpha_sum as f64 * alpha) + (beta_sum as f64 * beta)
 }
 
-fn mean(s: Sequence) {
+fn mean(s: &Sequence, alpha: f64, beta: f64) {
     let count = s.len() as f64;
 
-    let sum = sum(s);
+    let sum = sum(s, alpha, beta);
 
     println!("\nMean:");
-    println!("\t{}", sum/count);
+    println!("\t{}", sum / count);
 }
 
-fn find_elem_index(s: Sequence, n: f64) {
+fn find_elem_index(s: &Sequence, n: f64, alpha: f64, beta: f64) {
     let mut results = Vec::new();
-    for (index, elem) in s.enumerate() {
-        if elem.float() == n {results.push(index);}
+    for (index, elem) in s.iter().enumerate() {
+        if elem.float(alpha, beta) == n {
+            results.push(index);
+        }
     }
 
     let mut i = 0;
@@ -182,6 +168,8 @@ fn find_elem_index(s: Sequence, n: f64) {
         print!("\t{}", result);
         i += 1;
     }
+
+    println!("")
 }
 
 fn row_generator(mut s: Sequence) {

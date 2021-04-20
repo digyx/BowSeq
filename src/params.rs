@@ -63,11 +63,24 @@ Bow Sequence Generator {}
             },
             "-type" => {
                 sequence_type = args[i+1].clone();
+
+                if sequence_type == "alphabeta" {
+                    println!("WARNING: Alphabeta will only generate rows");
+                    println!("");
+                    println!("Press enter to continue, CTRL+C to exit");
+                    std::io::stdin().read_line(&mut String::new()).unwrap();
+
+                }
             },
             "-standalone" => {
                 standalone = true;
             },
             "-rowFormat" => {
+                if row_count > 10 {
+                    println!("Please reduce count to 10 or lower");
+                    exit(1);
+                }
+
                 gen_rows = true;
             },
             "-find" => {
